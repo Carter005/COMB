@@ -1,0 +1,1 @@
+const t=process.env.SUPABASE_ACCESS_TOKEN,u='https://api.supabase.com/v1/projects/sucbbwhejdcojlnpvokv/database/query';const q="select public.o8_tick() as tick";const r=await fetch(u,{method:'POST',headers:{Authorization:`Bearer ${t}`,'Content-Type':'application/json'},body:JSON.stringify({query:q})});console.log(r.status,await r.text());

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="500" viewBox="0 0 1500 500" role="img" aria-labelledby="title description">
+  <title id="title">COMB X header</title>
+  <desc id="description">A black and white terminal-style text banner reading COMB, The Hive Remembers, Evidence Before Action, and Robinhood Chain Pons V2.</desc>
+  <rect width="1500" height="500" fill="#050505"/>
+  <g fill="#f2f2f2" font-family="Cascadia Mono, IBM Plex Mono, Consolas, monospace">
+    <text x="750" y="102" text-anchor="middle" font-size="16" font-weight="700" letter-spacing="5">LIVE OBSERVATION / ROBINHOOD CHAIN</text>
+    <text x="750" y="286" text-anchor="middle" font-size="190" font-weight="700" letter-spacing="0">COMB</text>
+    <text x="750" y="350" text-anchor="middle" font-size="34" font-weight="700" letter-spacing="6">THE HIVE REMEMBERS</text>
+    <text x="750" y="397" text-anchor="middle" font-size="16" font-weight="700" letter-spacing="3.5">EVIDENCE BEFORE ACTION</text>
+    <text x="750" y="450" text-anchor="middle" font-size="13" font-weight="700" letter-spacing="3">PONS V2 / VERIFIED SIGNALS ONLY</text>
+  </g>
+</svg>

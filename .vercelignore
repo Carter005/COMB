@@ -1,0 +1,8 @@
+.npm-cache/
+dist/
+node_modules/
+outputs/
+screenshots/
+work/
+DESIGN.md
+PRODUCT.md
