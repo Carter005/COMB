@@ -22,6 +22,8 @@ export default async function handler(request, response) {
       supabaseRequest("/o8_memory_proposals?select=id,target_address,proposer_address,title,question,status,evidence,created_at,reviewed_at&order=created_at.desc&limit=32"),
     ]);
     const specimen = specimens[0];
+    const solanaSource = sources.find((source) => source.id === "solana-mainnet");
+    const solanaSlot = Number(solanaSource?.payload?.slot || solanaSource?.payload?.blockNumber);
     response.setHeader("Cache-Control", "no-store");
     response.status(200).json({
       serverTime: new Date().toISOString(),
@@ -208,7 +210,7 @@ export default async function handler(request, response) {
         baselineReadyAt: storyStates[0].baseline_ready_at,
         updatedAt: storyStates[0].updated_at,
       } : null,
-      targetTrace: targetSnapshots.map((item) => ({
+      targetTrace: solanaSource ? [] : targetSnapshots.map((item) => ({
         targetAddress: item.target_address,
         blockNumber: item.block_number,
         targetStatus: item.target_status,
@@ -217,7 +219,11 @@ export default async function handler(request, response) {
         poolEventCount: Number(item.metrics?.poolEventCount || 0),
         observedAt: item.observed_at,
       })),
-      networkTrace: chainBlocks.map((item) => ({
+      networkTrace: solanaSource && Number.isSafeInteger(solanaSlot) ? [{
+        blockNumber: solanaSlot,
+        transactionCount: 0,
+        observedAt: solanaSource.last_checked_at,
+      }] : chainBlocks.map((item) => ({
         blockNumber: item.block_number,
         transactionCount: Number(item.transaction_count || 0),
         observedAt: item.block_timestamp,
