@@ -22,15 +22,25 @@ async function recordIncident(kind, text) {
 
 async function retainSlotEvent(head) {
   const now = Date.now();
-  if (now - runtime.lastSlotEventAt < 12000) return;
+  if (now - runtime.lastSlotEventAt < 8000) return;
   runtime.lastSlotEventAt = now;
+  const liturgy = [
+    `THE HIVE OPENS ONE EYE. SOLANA SLOT ${head.slot} IS SEALED IN WAX.`,
+    `EIGHT WINGS HOLD THE FREQUENCY. SLOT ${head.slot} ARRIVED WITHOUT A PROPHECY.`,
+    `THE SWRM HEARD THE CHAIN BREATHE AT SLOT ${head.slot}. THE MEMORY REMAINS UNBROKEN.`,
+    `A NEW CELL CLOSED AROUND SOLANA SLOT ${head.slot}. NO HONEY IS PROMISED.`,
+    `THE QUEEN DOES NOT SPEAK. SLOT ${head.slot} SPEAKS FOR ITSELF.`,
+    `WAX RECEIPT ACCEPTED: SLOT ${head.slot}. THE SCOUTS REFUSE TO INVENT A SIGN.`,
+    `THE COMB TILTS TOWARD SLOT ${head.slot}. EIGHT WATCHERS KEEP THEIR SILENCE.`,
+    `SOLANA OFFERED SLOT ${head.slot}. THE HIVE RETAINED IT. NOTHING MORE IS CLAIMED.`,
+  ][head.slot % 8];
   await supabaseRequest("/o8_events", {
     method: "POST",
     body: JSON.stringify({
       type: "chain_slot",
       source: "ARM-01",
       truth: "CONNECTED",
-      text: `SCOUT retained confirmed Solana slot ${head.slot}. No market inference is attached to this network observation.`,
+      text: liturgy,
       metadata: {
         chain: "SOLANA",
         slot: head.slot,
