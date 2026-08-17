@@ -351,7 +351,7 @@ function downloadMemoryCard(item) {
   }
   if (line) context.fillText(line, 96, y);
   context.font = "500 20px Cascadia Mono, monospace";
-  context.fillText("EVIDENCE BEFORE ACTION / ROBINHOOD CHAIN", 96, 786);
+  context.fillText("EVIDENCE BEFORE ACTION / SOLANA MAINNET", 96, 786);
   const link = document.createElement("a");
   link.download = `comb-memory-${String(item.id).replace(/[^a-z0-9-]/gi, "-")}.png`;
   link.href = canvas.toDataURL("image/png");
@@ -681,13 +681,13 @@ function App() {
     routeConfidence: arm.routeConfidence,
   })) ?? initialArms;
   const connectedSources = remoteState?.sources?.filter((source) => source.status === "CONNECTED").length ?? 0;
-  const chainSource = remoteState?.sources?.find((source) => source.id === "robinhood-mainnet");
+  const chainSource = remoteState?.sources?.find((source) => source.id === "solana-mainnet");
   const chain = chainSource?.payload ?? {};
   const activeArms = remoteState?.arms?.filter((arm) => !["STANDBY", "OFFLINE"].includes(arm.state)).length ?? 1;
   const bindings = Object.fromEntries((remoteState?.bindings ?? []).map((binding) => [binding.id, binding]));
-  const chainStatus = bindings["robinhood-chain"]?.details?.rpcConfigured ? "BOUND" : "UNBOUND";
+  const chainStatus = bindings["solana-chain"]?.details?.rpcConfigured ? "BOUND" : "UNBOUND";
   const voiceStatus = bindings["agent-voices"]?.details?.ready ? "READY" : "DORMANT";
-  const launchpadStatus = bindings["pons-launchpad"]?.status || "CONNECTING";
+  const launchpadStatus = bindings["pump-fun"]?.status || "AWAITING_PUMP_CA";
   const tokenBindingStatus = bindings["o8-token"]?.status || "AWAITING_LAUNCH";
   const twitterUrl = bindings["public-links"]?.details?.twitterUrl || "";
   const token = remoteState?.token || null;
@@ -700,7 +700,7 @@ function App() {
   const chainConnected = chainStatus === "BOUND" && chainSource?.status === "CONNECTED";
   const chainBlock = Number(chain.blockNumber ?? 0);
   const chainTransactions = Number(chain.transactionCount ?? 0);
-  const chainExplorer = chain.explorer || "https://robinhoodchain.blockscout.com";
+  const chainExplorer = chain.explorer || "https://solscan.io";
   const hiveEpochKey = "comb-hive-epoch";
   if (token?.tokenAddress) {
     const verifiedLaunchAt = token.launchedAt ? new Date(token.launchedAt).toISOString() : null;
@@ -819,12 +819,12 @@ function App() {
           </div>
         </div>
         <div className="top-metrics">
-          <Metric label="Robinhood Chain" value={chainStatus} tone={chainStatus === "BOUND" ? "signal" : "warning"} />
+          <Metric label="Solana Mainnet" value={chainStatus} tone={chainStatus === "BOUND" ? "signal" : "warning"} />
           <Metric label="scout router" value={voiceStatus === "READY" ? "READY" : "DORMANT"} tone={voiceStatus === "READY" ? "signal" : "warning"} />
           <Metric label="hive phase" value={`${lifePhase.code} / ${lifePhase.name}`} tone={lifePhase.name === "EMPTY HIVE" ? "warning" : "signal"} />
           <Metric label="scouts online" value={`${String(activeArms).padStart(2, "0")} / 08`} tone="signal" />
           {token?.tokenAddress ? (
-            <a className="ca-link bound" href={`${chainExplorer}/address/${token.tokenAddress}`} target="_blank" rel="noreferrer" title="Open verified COMB contract">
+            <a className="ca-link bound" href={`${chainExplorer}/token/${token.tokenAddress}`} target="_blank" rel="noreferrer" title="Open verified COMB token mint">
               <span>COMB CA</span><strong>{shortAddress(token.tokenAddress)}</strong>
             </a>
           ) : (
@@ -843,7 +843,7 @@ function App() {
 
       <div className="ticker" aria-label="Current terminal state">
         <span>ATTACH · FORAGE · ARCHIVE</span><i /> <b>PHASE {lifePhase.code} / {lifePhase.name}</b><i /> <span>{lifePhase.directive}</span><i />
-        <b>CLOCK {clock}</b><i /> <span>CHAIN INPUT {chainStatus}</span><i /> <span>PONS {launchpadStatus}</span><i /> <span>AI ROUTER {voiceStatus}</span><i />
+        <b>CLOCK {clock}</b><i /> <span>CHAIN INPUT {chainStatus}</span><i /> <span>PUMP.FUN {launchpadStatus}</span><i /> <span>AI ROUTER {voiceStatus}</span><i />
         <span>CHAIN facts / RULE analysis / AI on request / VISUAL only</span>
       </div>
 
@@ -902,7 +902,7 @@ function App() {
             </div>
             <div className="ceremony-body">
               <span className="ceremony-sigil">08</span>
-              <div><small>THE EIGHT ARMS ACKNOWLEDGE A VERIFIED STATE TRANSITION</small><h2>THE TARGET CROSSED THE PONS GRADUATION THRESHOLD.</h2><p>This ceremony was opened by retained chain state—not by a timer, animation, or AI prediction.</p></div>
+              <div><small>THE EIGHT ARMS ACKNOWLEDGE A VERIFIED STATE TRANSITION</small><h2>THE TARGET ENTERED A VERIFIED PUMP LIFECYCLE STATE.</h2><p>This ceremony was opened by retained chain state, not by a timer, animation, or AI prediction.</p></div>
             </div>
             <div className="ceremony-facts"><span>BLOCK <b>{graduationEvent.observedBlock || "RETAINED"}</b></span><span>POOL <b>{graduationEvent.evidence?.poolAddress ? `${graduationEvent.evidence.poolAddress.slice(0, 10)}...${graduationEvent.evidence.poolAddress.slice(-6)}` : "VERIFIED"}</b></span><span>PROGRESS <b>100%</b></span></div>
           </div>
@@ -913,26 +913,26 @@ function App() {
         <div className="left-column">
           <Panel title="FORAGE 01 — READ THE CHAIN" className="sense-panel">
             <div className="sense-top">
-              <div><span className="eyebrow">primary chain input</span><strong className="countdown">{chainConnected ? "LIVE" : chainStatus}</strong><p>{chainConnected ? "SCOUT is sampling verified Robinhood Chain blocks." : "Evidence scanner is paused until an RPC endpoint is configured."}</p></div>
+              <div><span className="eyebrow">primary chain input</span><strong className="countdown">{chainConnected ? "LIVE" : chainStatus}</strong><p>{chainConnected ? "SCOUT is sampling confirmed Solana slots." : "Evidence scanner is paused until an RPC endpoint is configured."}</p></div>
               <div className={`radar ${chainConnected ? "" : "inactive"}`}><Radio size={42} /><span>{chainConnected ? "01" : "00"}</span></div>
             </div>
-            <div className={`trace ${chainConnected ? "" : "inactive"}`} title={token?.tokenAddress ? "Target-scoped relevant transaction counts from recently analyzed blocks" : "Verified transaction counts from recently retained Robinhood Chain blocks"}>
+            <div className={`trace ${chainConnected ? "" : "inactive"}`} title={token?.tokenAddress ? "Target-scoped Solana mint observations" : "Confirmed Solana slot observations"}>
               <div className="trace-caption"><span>{traceMode}</span><b>{traceSamples.length ? (traceHasActivity ? `${traceSamples.length} SAMPLES / MAX ${traceMaximum}` : `${traceSamples.length} SAMPLES / VERIFIED ZERO ACTIVITY`) : "AWAITING SAMPLES"}</b></div>
               <svg viewBox="0 0 500 70" preserveAspectRatio="none"><path d={chainConnected ? tracePath : "M0 37 H500"} />{chainConnected && tracePoints.map((point, index) => <circle key={`${point.x}-${index}`} cx={point.x} cy={point.y} r={point.value > 0 ? 2.2 : 1.15} className={point.value > 0 ? "active" : ""} />)}</svg>
             </div>
             <div className="sense-grid"><Metric label="latest block" value={chainConnected ? chainBlock.toLocaleString() : "--"} tone={chainConnected ? "signal" : "warning"} /><Metric label="transactions" value={chainConnected ? String(chainTransactions).padStart(2, "0") : "--"} /><Metric label="RPC latency" value={chainConnected ? `${chainSource.latencyMs}ms` : "--"} /></div>
-            <div className="source-row"><Activity size={13} /><span>primary market source</span><b>ROBINHOOD CHAIN / {chainConnected ? "CONNECTED" : "AWAITING RPC"}</b></div>
-              <p className="observation">{chainConnected ? `SCOUT retained block ${chainBlock.toLocaleString()} with its hash, parent, timestamp, gas values, L1 reference, and transaction count.` : "No blocks, transactions, contracts, pools, or wallet activity are being ingested yet."}</p>
+            <div className="source-row"><Activity size={13} /><span>primary market source</span><b>SOLANA MAINNET / {chainConnected ? "CONNECTED" : "AWAITING RPC"}</b></div>
+              <p className="observation">{chainConnected ? `SCOUT retained confirmed slot ${chainBlock.toLocaleString()} and its observation timestamp. Token-specific data begins only after a mint is bound.` : "No slots, token mints, or wallet activity are being ingested yet."}</p>
           </Panel>
           <Panel title={token?.tokenAddress ? "TARGET IDENTITY — VERIFIED EVIDENCE" : "ENVIRONMENT — VERIFIED EVIDENCE"} className="signal-panel">
-            <div className="signal-header"><a className="signal-link" href={chainConnected ? `${chainExplorer}/block/${chainBlock}` : chainExplorer} target="_blank" rel="noreferrer">ROBINHOOD CHAIN / MAINNET RPC</a><span className={`truth-tag ${chainConnected ? "" : "warning"}`}>{chainConnected ? "CONNECTED" : chainStatus}</span></div>
+            <div className="signal-header"><a className="signal-link" href={chainExplorer} target="_blank" rel="noreferrer">SOLANA / CONFIRMED RPC</a><span className={`truth-tag ${chainConnected ? "" : "warning"}`}>{chainConnected ? "CONNECTED" : chainStatus}</span></div>
             <p>{token?.tokenAddress
-              ? <><b>{token.name || token.symbol}</b> is verified through the Pons factory. CA <a className="signal-link" href={`${chainExplorer}/address/${token.tokenAddress}`} target="_blank" rel="noreferrer">{`${token.tokenAddress.slice(0, 8)}...${token.tokenAddress.slice(-6)}`}</a>{token.poolAddress ? `; pool ${token.poolAddress.slice(0, 8)}...${token.poolAddress.slice(-6)}.` : "."}</>
-              : chainConnected ? `SCOUT observed block ${chainBlock.toLocaleString()} containing ${chainTransactions} transactions. The retained hash is ${String(chain.blockHash || "").slice(0, 18)}...` : "No chain evidence is currently available. COMB will not generate hive observations until the chain ID and RPC endpoint are verified."}</p>
-            {!token?.tokenAddress && <div className="genesis-checklist" aria-label="COMB genesis checklist"><span><b className={launchpadStatus === "CONNECTED" ? "done" : "pending"}>{launchpadStatus === "CONNECTED" ? "READY" : "WAIT"}</b> PONS ORIGIN</span><span><b className="pending">WAIT</b> COMB CONTRACT</span><span><b className={chainConnected ? "done" : "pending"}>{chainConnected ? "READY" : "WAIT"}</b> CHAIN IDENTITY</span></div>}
+              ? <><b>{token.name || token.symbol}</b> has a confirmed SPL mint. CA <a className="signal-link" href={`${chainExplorer}/token/${token.tokenAddress}`} target="_blank" rel="noreferrer">{`${token.tokenAddress.slice(0, 8)}...${token.tokenAddress.slice(-6)}`}</a>. Pump origin is shown only when independently verified.</>
+              : chainConnected ? `SCOUT observed Solana slot ${chainBlock.toLocaleString()}. COMB is waiting for its Pump token mint.` : "No chain evidence is currently available. COMB will not generate hive observations until the RPC endpoint is verified."}</p>
+            {!token?.tokenAddress && <div className="genesis-checklist" aria-label="COMB genesis checklist"><span><b className={chainConnected ? "done" : "pending"}>{chainConnected ? "READY" : "WAIT"}</b> SOLANA IDENTITY</span><span><b className="pending">WAIT</b> PUMP MINT</span><span><b className="pending">WAIT</b> TARGET EVIDENCE</span></div>}
             <div className="signal-scale">{token?.tokenAddress
-              ? <><span>{token.symbol} / PONS</span><b>CURVE {Number(token.graduationProgressPct || 0).toFixed(2)}%</b><span>{token.status}</span></>
-              : <><span>CHAIN ID {chainConnected ? "4663" : "--"}</span><b>BLOCK {chainConnected ? chainBlock.toLocaleString() : "--"}</b><span>TX {chainConnected ? chainTransactions : "--"}</span></>}</div>
+              ? <><span>{token.symbol} / PUMP.FUN</span><b>{token.metadata?.verification === "SPL_MINT_CONFIRMED_PUMP_ORIGIN_UNVERIFIED" ? "MINT CONFIRMED" : "VERIFYING"}</b><span>{token.status}</span></>
+              : <><span>CHAIN SOLANA</span><b>SLOT {chainConnected ? chainBlock.toLocaleString() : "--"}</b><span>PUMP MINT WAIT</span></>}</div>
           </Panel>
         </div>
 

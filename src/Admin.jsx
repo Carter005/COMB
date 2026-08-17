@@ -66,7 +66,7 @@ export default function Admin() {
   );
   const targetMonitor = bindings["target-monitor"];
   const railway = bindings["railway-observer"];
-  const pons = bindings["pons-launchpad"];
+  const pump = bindings["pump-fun"];
   const targetMode = targetMonitor?.details?.mode || "NETWORK";
 
   const authorizedFetch = useCallback(async (url, options = {}) => {
@@ -243,7 +243,7 @@ export default function Admin() {
   const token = state?.token;
   const pendingProposals = (state?.memoryProposals || []).filter((proposal) => proposal.status === "PENDING");
   const activeArms = state?.arms?.filter((arm) => !["STANDBY", "OFFLINE"].includes(arm.state)).length || 0;
-  const explorer = "https://robinhoodchain.blockscout.com";
+  const explorer = "https://solscan.io";
 
   return (
     <main className="admin-shell">
@@ -262,7 +262,7 @@ export default function Admin() {
       <section className="admin-status-strip" aria-label="System status">
         <AdminMetric label="MODE" value={targetMode} tone={statusTone(targetMonitor?.status)} />
         <AdminMetric label="TOKEN" value={token?.status || "UNKNOWN"} tone={statusTone(token?.status)} />
-        <AdminMetric label="PONS" value={pons?.status || "UNKNOWN"} tone={statusTone(pons?.status)} />
+        <AdminMetric label="PUMP.FUN" value={pump?.status || "AWAITING_PUMP_CA"} tone={statusTone(pump?.status)} />
         <AdminMetric label="RAILWAY" value={railway?.status || "UNKNOWN"} tone={statusTone(railway?.status)} />
         <AdminMetric label="AGENTS" value={`${String(activeArms).padStart(2, "0")} / 08`} />
         <AdminMetric label="CHAIN HEAD" value={railway?.details?.head?.toLocaleString?.() || railway?.details?.head || "--"} />
@@ -273,29 +273,29 @@ export default function Admin() {
       <section className="admin-grid">
         <section className="admin-section admin-target-section" aria-labelledby="target-heading">
           <div className="admin-section-heading">
-            <div><span>01 / TARGET CONTROL</span><h2 id="target-heading">PONS TOKEN BINDING</h2></div>
+            <div><span>01 / TARGET CONTROL</span><h2 id="target-heading">PUMP TOKEN BINDING</h2></div>
             <strong className={statusTone(token?.status)}>{token?.status || "UNKNOWN"}</strong>
           </div>
 
           <div className="admin-target-readout">
             <div><span>TOKEN NAME</span><b>{token?.name || "$COMB / NOT LAUNCHED"}</b></div>
             <div><span>SYMBOL</span><b>{token?.symbol || "COMB"}</b></div>
-            <div><span>CURVE</span><b>{token?.graduationProgressPct === null || token?.graduationProgressPct === undefined ? "--" : `${Number(token.graduationProgressPct).toFixed(2)}%`}</b></div>
-            <div><span>GRADUATION</span><b>{pons?.details?.graduationThresholdEth ? `${pons.details.graduationThresholdEth} ETH` : "4.2 ETH"}</b></div>
+            <div><span>NETWORK</span><b>SOLANA</b></div>
+            <div><span>ORIGIN</span><b>{pump?.status || "AWAITING MINT"}</b></div>
           </div>
 
           <dl className="admin-address-list">
             <div><dt>TOKEN CA</dt><dd><CopyValue value={token?.tokenAddress} label="token CA" /></dd></div>
-            <div><dt>POOL CA</dt><dd><CopyValue value={token?.poolAddress} label="pool CA" /></dd></div>
-            <div><dt>LAUNCH TX</dt><dd><CopyValue value={token?.launchTxHash} label="launch transaction" /></dd></div>
+            <div><dt>MINT PROGRAM</dt><dd><CopyValue value={token?.metadata?.mintProgram} label="mint program" /></dd></div>
+            <div><dt>LAUNCH SIGNATURE</dt><dd><CopyValue value={token?.launchTxHash} label="launch signature" /></dd></div>
           </dl>
 
           <form className="admin-form" onSubmit={bindToken}>
-            <label htmlFor="token-ca">TOKEN CA</label>
-            <input id="token-ca" value={tokenAddress} onChange={(event) => setTokenAddress(event.target.value)} placeholder="0x..." spellCheck="false" required />
-            <label htmlFor="launch-tx">LAUNCH TX HASH / OPTIONAL</label>
-            <input id="launch-tx" value={launchTxHash} onChange={(event) => setLaunchTxHash(event.target.value)} placeholder="0x..." spellCheck="false" />
-            <button type="submit" disabled={busy === "bind"}><Link2 size={14} /> {busy === "bind" ? "BINDING" : "BIND PONS CA"}</button>
+            <label htmlFor="token-ca">PUMP TOKEN MINT</label>
+            <input id="token-ca" value={tokenAddress} onChange={(event) => setTokenAddress(event.target.value)} placeholder="Solana mint address" spellCheck="false" required />
+            <label htmlFor="launch-tx">LAUNCH SIGNATURE / OPTIONAL</label>
+            <input id="launch-tx" value={launchTxHash} onChange={(event) => setLaunchTxHash(event.target.value)} placeholder="Solana transaction signature" spellCheck="false" />
+            <button type="submit" disabled={busy === "bind"}><Link2 size={14} /> {busy === "bind" ? "VERIFYING" : "BIND PUMP MINT"}</button>
           </form>
 
           <div className="admin-danger-row">
@@ -310,8 +310,8 @@ export default function Admin() {
             <Activity size={18} />
           </div>
           <div className="admin-runtime-list">
-            <div><Radio size={14} /><span>NETWORK</span><b>{bindings["robinhood-chain"]?.status || "UNKNOWN"}</b></div>
-            <div><Radio size={14} /><span>PONS FACTORY</span><b>{pons?.status || "UNKNOWN"}</b></div>
+            <div><Radio size={14} /><span>NETWORK</span><b>{bindings["solana-chain"]?.status || "CONNECTING"}</b></div>
+            <div><Radio size={14} /><span>PUMP ORIGIN</span><b>{pump?.status || "AWAITING_PUMP_CA"}</b></div>
             <div><Radio size={14} /><span>TARGET MONITOR</span><b>{targetMonitor?.status || "UNKNOWN"}</b></div>
             <div><Radio size={14} /><span>DELIVERY</span><b>{railway?.details?.delivery || "UNKNOWN"}</b></div>
             <div><Radio size={14} /><span>LAST TARGET BLOCK</span><b>{targetMonitor?.details?.lastObservedBlock?.toLocaleString?.() || targetMonitor?.details?.lastObservedBlock || "--"}</b></div>

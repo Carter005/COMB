@@ -1,6 +1,5 @@
-import { allowMethod, supabaseRequest } from "../../lib/supabase-server.js";
-import { refreshRobinhoodChain } from "../../lib/robinhood-chain.js";
-import { refreshPonsLifecycle } from "../../lib/pons-launchpad.js";
+import { allowMethod } from "../../lib/supabase-server.js";
+import { getSolanaHead, refreshPumpTarget } from "../../lib/solana-pump.js";
 
 export default async function handler(request, response) {
   if (!allowMethod(request, response, ["GET", "POST"])) return;
@@ -10,11 +9,7 @@ export default async function handler(request, response) {
     return response.status(401).json({ error: "unauthorized" });
   }
 
-  const [tick, chain, pons] = await Promise.allSettled([
-    supabaseRequest("/rpc/o8_tick", { method: "POST", body: "{}" }),
-    refreshRobinhoodChain(),
-    refreshPonsLifecycle(),
-  ]);
+  const [chain, pump] = await Promise.allSettled([getSolanaHead(), refreshPumpTarget()]);
   response.setHeader("Cache-Control", "no-store");
   if (chain.status === "rejected") {
     return response.status(502).json({ ok: false, error: "chain ingestion failed" });
@@ -22,7 +17,6 @@ export default async function handler(request, response) {
   return response.status(200).json({
     ok: true,
     chain: chain.value,
-    pons: pons.status === "fulfilled" ? pons.value : { refreshed: false, error: "launchpad ingestion degraded" },
-    tick: tick.status === "fulfilled" ? tick.value : null,
+    pump: pump.status === "fulfilled" ? pump.value : { refreshed: false, error: "Pump target refresh degraded" },
   });
 }
