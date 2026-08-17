@@ -6,7 +6,7 @@ const pollIntervalMs = Math.max(1000, Number(process.env.POLL_INTERVAL_MS || 250
 const pumpIntervalMs = Math.max(8000, Number(process.env.PUMP_INTERVAL_MS || 15000));
 const heartbeatIntervalMs = Math.max(5000, Number(process.env.HEARTBEAT_INTERVAL_MS || 15000));
 const port = Number(process.env.PORT || 3000);
-const runtime = { service: "swrm-solana-observer", status: "STARTING", chain: "solana-mainnet", head: null, lastPollAt: null, lastPumpAt: null, targetAddress: null, consecutiveErrors: 0, lastError: null, startedAt: new Date().toISOString() };
+const runtime = { service: "swrm-solana-observer", status: "STARTING", chain: "solana-mainnet", head: null, lastPollAt: null, lastPumpAt: null, lastSlotEventAt: 0, targetAddress: null, consecutiveErrors: 0, lastError: null, startedAt: new Date().toISOString() };
 let stopping = false; let pumpRunning = false;
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -18,6 +18,29 @@ async function publishObserverStatus() {
 
 async function recordIncident(kind, text) {
   await supabaseRequest("/o8_events", { method: "POST", body: JSON.stringify({ type: "observer_incident", source: "SWRM-OBSERVER", truth: "RULE", text, metadata: { chain: "SOLANA", incidentKind: kind, targetAddress: runtime.targetAddress, observedAt: new Date().toISOString() } }) }).catch(() => null);
+}
+
+async function retainSlotEvent(head) {
+  const now = Date.now();
+  if (now - runtime.lastSlotEventAt < 12000) return;
+  runtime.lastSlotEventAt = now;
+  await supabaseRequest("/o8_events", {
+    method: "POST",
+    body: JSON.stringify({
+      type: "chain_slot",
+      source: "ARM-01",
+      truth: "CONNECTED",
+      text: `SCOUT retained confirmed Solana slot ${head.slot}. No market inference is attached to this network observation.`,
+      metadata: {
+        chain: "SOLANA",
+        slot: head.slot,
+        observedAt: head.blockTime,
+        explorerUrl: "https://solscan.io",
+        coverage: runtime.targetAddress ? "NETWORK_WITH_BOUND_MINT" : "NETWORK",
+        tokenAddress: runtime.targetAddress,
+      },
+    }),
+  });
 }
 
 async function retainHead(head) {
@@ -44,7 +67,7 @@ async function observerLoop() {
       const head = await getSolanaHead(); const changed = runtime.head !== head.slot;
       runtime.head = head.slot; runtime.lastPollAt = new Date().toISOString(); runtime.status = "CONNECTED";
       const recovered = runtime.consecutiveErrors > 0; runtime.consecutiveErrors = 0; runtime.lastError = null;
-      await retainHead(head); await publishObserverStatus();
+      await retainHead(head); await retainSlotEvent(head); await publishObserverStatus();
       if (changed) console.log(JSON.stringify({ event: "slot_observed", slot: head.slot, latencyMs: head.latencyMs }));
       if (recovered) await recordIncident("RECOVERED", "SWRM observer recovered confirmed Solana slot polling after a recorded observation gap.");
     } catch (error) {

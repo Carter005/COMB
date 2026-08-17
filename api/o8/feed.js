@@ -13,7 +13,11 @@ export default async function handler(request, response) {
       supabaseRequest("/o8_story_milestones?select=id,target_address,event_key,event_type,title,description,truth,source,observed_block,evidence,occurred_at&order=occurred_at.desc&limit=64"),
       supabaseRequest("/o8_micro_milestones?select=id,target_address,milestone_key,milestone_type,title,description,truth,observed_block,evidence,occurred_at&order=occurred_at.desc&limit=64"),
     ]);
-    const activeTarget = targets?.[0]?.token_address?.toLowerCase() || null;
+    // Until the submitted address is confirmed as an SPL mint, retain network
+    // observations in the public stream instead of presenting an empty feed.
+    const activeTarget = targets?.[0]?.status === "PUMP_ACTIVE"
+      ? targets[0]?.token_address?.toLowerCase() || null
+      : null;
     const liveItems = activeTarget
       ? recentItems.filter((item) => item.metadata?.tokenAddress?.toLowerCase() === activeTarget)
       : recentItems.filter((item) => !item.metadata?.tokenAddress);
