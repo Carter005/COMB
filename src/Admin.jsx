@@ -14,7 +14,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-const adminSessionKey = "comb-admin-access";
+const adminSessionKey = "swrm-admin-access";
 
 function shortAddress(value) {
   return value ? `${value.slice(0, 10)}...${value.slice(-8)}` : "UNBOUND";
@@ -226,7 +226,7 @@ export default function Admin() {
     return (
       <main className="admin-login-shell">
         <form className="admin-login" onSubmit={login}>
-          <div className="admin-login-mark"><ShieldCheck size={24} /><span>COMB CONTROL</span></div>
+          <div className="admin-login-mark"><ShieldCheck size={24} /><span>SWRM CONTROL</span></div>
           <label htmlFor="admin-key">ADMIN ACCESS KEY</label>
           <div className="admin-login-input">
             <KeyRound size={15} />
@@ -249,7 +249,7 @@ export default function Admin() {
     <main className="admin-shell">
       <header className="admin-header">
         <div>
-          <span className="admin-kicker">COMB / RESTRICTED CONTROL SURFACE</span>
+          <span className="admin-kicker">SWRM / RESTRICTED CONTROL SURFACE</span>
           <h1>THE HIVE CONTROL</h1>
         </div>
         <div className="admin-header-actions">
@@ -278,8 +278,8 @@ export default function Admin() {
           </div>
 
           <div className="admin-target-readout">
-            <div><span>TOKEN NAME</span><b>{token?.name || "$COMB / NOT LAUNCHED"}</b></div>
-            <div><span>SYMBOL</span><b>{token?.symbol || "COMB"}</b></div>
+            <div><span>TOKEN NAME</span><b>{token?.name || "$SWRM / NOT LAUNCHED"}</b></div>
+            <div><span>SYMBOL</span><b>{token?.symbol || "SWRM"}</b></div>
             <div><span>NETWORK</span><b>SOLANA</b></div>
             <div><span>ORIGIN</span><b>{pump?.status || "AWAITING MINT"}</b></div>
           </div>
@@ -363,7 +363,7 @@ export default function Admin() {
       <footer className="admin-footer">
         <span><ShieldCheck size={13} /> ADMIN SESSION / AUTHORIZED</span>
         <span>STATE {new Date(state?.serverTime || Date.now()).toLocaleTimeString("en-GB", { hour12: false })}</span>
-        <span>COMB CONTROL / EVIDENCE BEFORE ACTION</span>
+        <span>SWRM CONTROL / EVIDENCE BEFORE ACTION</span>
       </footer>
     </main>
   );

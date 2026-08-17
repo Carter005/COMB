@@ -6,7 +6,7 @@ const pollIntervalMs = Math.max(1000, Number(process.env.POLL_INTERVAL_MS || 250
 const pumpIntervalMs = Math.max(8000, Number(process.env.PUMP_INTERVAL_MS || 15000));
 const heartbeatIntervalMs = Math.max(5000, Number(process.env.HEARTBEAT_INTERVAL_MS || 15000));
 const port = Number(process.env.PORT || 3000);
-const runtime = { service: "comb-solana-observer", status: "STARTING", chain: "solana-mainnet", head: null, lastPollAt: null, lastPumpAt: null, targetAddress: null, consecutiveErrors: 0, lastError: null, startedAt: new Date().toISOString() };
+const runtime = { service: "swrm-solana-observer", status: "STARTING", chain: "solana-mainnet", head: null, lastPollAt: null, lastPumpAt: null, targetAddress: null, consecutiveErrors: 0, lastError: null, startedAt: new Date().toISOString() };
 let stopping = false; let pumpRunning = false;
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -17,7 +17,7 @@ async function publishObserverStatus() {
 }
 
 async function recordIncident(kind, text) {
-  await supabaseRequest("/o8_events", { method: "POST", body: JSON.stringify({ type: "observer_incident", source: "COMB-OBSERVER", truth: "RULE", text, metadata: { chain: "SOLANA", incidentKind: kind, targetAddress: runtime.targetAddress, observedAt: new Date().toISOString() } }) }).catch(() => null);
+  await supabaseRequest("/o8_events", { method: "POST", body: JSON.stringify({ type: "observer_incident", source: "SWRM-OBSERVER", truth: "RULE", text, metadata: { chain: "SOLANA", incidentKind: kind, targetAddress: runtime.targetAddress, observedAt: new Date().toISOString() } }) }).catch(() => null);
 }
 
 async function retainHead(head) {
@@ -47,11 +47,11 @@ async function observerLoop() {
       const recovered = runtime.consecutiveErrors > 0; runtime.consecutiveErrors = 0; runtime.lastError = null;
       await retainHead(head); await publishObserverStatus();
       if (changed) console.log(JSON.stringify({ event: "slot_observed", slot: head.slot, latencyMs: head.latencyMs }));
-      if (recovered) await recordIncident("RECOVERED", "COMB observer recovered confirmed Solana slot polling after a recorded observation gap.");
+      if (recovered) await recordIncident("RECOVERED", "SWRM observer recovered confirmed Solana slot polling after a recorded observation gap.");
     } catch (error) {
       runtime.status = "DEGRADED"; runtime.consecutiveErrors += 1; runtime.lastError = error.message;
       await publishObserverStatus().catch(() => null);
-      if (runtime.consecutiveErrors === 1) await recordIncident("DEGRADED", "COMB observer recorded a Solana RPC polling gap. No token inference is made while the observation link is degraded.");
+      if (runtime.consecutiveErrors === 1) await recordIncident("DEGRADED", "SWRM observer recorded a Solana RPC polling gap. No token inference is made while the observation link is degraded.");
       console.warn(JSON.stringify({ event: "observer_error", error: error.message }));
     }
     const backoff = runtime.consecutiveErrors ? Math.min(30000, pollIntervalMs * 2 ** Math.min(4, runtime.consecutiveErrors)) : pollIntervalMs;

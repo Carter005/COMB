@@ -60,7 +60,7 @@ export default async function handler(request, response) {
       })),
       bindings: bindings.map((binding) => binding.id === "minimax" ? {
         id: "agent-voices",
-        label: "COMB Agent Voices",
+        label: "SWRM Agent Voices",
         status: binding.details?.providerConfigured ? "READY" : "DORMANT",
         truth: binding.truth,
         details: {
@@ -80,8 +80,8 @@ export default async function handler(request, response) {
         id: tokenTargets[0].id,
         platform: tokenTargets[0].platform,
         status: tokenTargets[0].status,
-        name: tokenTargets[0].token_name === "$O8" ? "$COMB" : tokenTargets[0].token_name,
-        symbol: !tokenTargets[0].symbol || tokenTargets[0].symbol === "O8" ? "COMB" : tokenTargets[0].symbol,
+        name: tokenTargets[0].token_name === "$O8" ? "$SWRM" : tokenTargets[0].token_name,
+        symbol: !tokenTargets[0].symbol || tokenTargets[0].symbol === "O8" ? "SWRM" : tokenTargets[0].symbol,
         tokenAddress: tokenTargets[0].token_address,
         deployerAddress: tokenTargets[0].deployer_address,
         poolAddress: tokenTargets[0].pool_address,

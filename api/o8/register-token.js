@@ -8,8 +8,8 @@ export default async function handler(request, response) {
     if (request.method === "DELETE") {
       const updatedAt = new Date().toISOString();
       await Promise.all([
-        supabaseRequest("/o8_token_targets?id=eq.o8", { method: "PATCH", body: JSON.stringify({ platform: "PUMP.FUN", symbol: "COMB", token_name: null, token_address: null, launch_tx_hash: null, launch_block: null, launched_at: null, total_supply: null, status: "AWAITING_PUMP_CA", metadata: { chain: "SOLANA", launchpad: "PUMP.FUN", verification: "TARGET_MINT_REQUIRED" }, updated_at: updatedAt }) }),
-        supabaseRequest("/o8_system_bindings?id=eq.o8-token", { method: "PATCH", body: JSON.stringify({ status: "AWAITING_PUMP_CA", details: { symbol: "COMB", contractAddress: null, launchpad: "PUMP.FUN", stage: "AWAITING_PUMP_CA" }, updated_at: updatedAt }) }),
+        supabaseRequest("/o8_token_targets?id=eq.o8", { method: "PATCH", body: JSON.stringify({ platform: "PUMP.FUN", symbol: "SWRM", token_name: null, token_address: null, launch_tx_hash: null, launch_block: null, launched_at: null, total_supply: null, status: "AWAITING_PUMP_CA", metadata: { chain: "SOLANA", launchpad: "PUMP.FUN", verification: "TARGET_MINT_REQUIRED" }, updated_at: updatedAt }) }),
+        supabaseRequest("/o8_system_bindings?id=eq.o8-token", { method: "PATCH", body: JSON.stringify({ status: "AWAITING_PUMP_CA", details: { symbol: "SWRM", contractAddress: null, launchpad: "PUMP.FUN", stage: "AWAITING_PUMP_CA" }, updated_at: updatedAt }) }),
         supabaseRequest("/o8_system_bindings?id=eq.pump-fun", { method: "PATCH", body: JSON.stringify({ status: "AWAITING_PUMP_CA", details: { platform: "PUMP.FUN", verification: "TARGET_MINT_REQUIRED" }, updated_at: updatedAt }) }),
       ]);
       response.setHeader("Cache-Control", "no-store");
@@ -22,8 +22,8 @@ export default async function handler(request, response) {
     const mint = await inspectMint(tokenAddress); const updatedAt = new Date().toISOString();
     const verification = "SPL_MINT_CONFIRMED_PUMP_ORIGIN_UNVERIFIED";
     await Promise.all([
-      supabaseRequest("/o8_token_targets?id=eq.o8", { method: "PATCH", body: JSON.stringify({ platform: "PUMP.FUN", symbol: "COMB", token_address: tokenAddress, launch_tx_hash: launchTxHash || mint.firstObservedSignature, launch_block: mint.firstObservedSlot, total_supply: mint.supplyRaw, status: "PUMP_ACTIVE", metadata: { chain: "SOLANA", launchpad: "PUMP.FUN", mintProgram: mint.owner, decimals: mint.decimals, supplyRaw: mint.supplyRaw, verification, explorer: `https://solscan.io/token/${tokenAddress}` }, updated_at: updatedAt }) }),
-      supabaseRequest("/o8_system_bindings?id=eq.o8-token", { method: "PATCH", body: JSON.stringify({ status: "PUMP_ACTIVE", truth: "CONNECTED", details: { symbol: "COMB", contractAddress: tokenAddress, launchpad: "PUMP.FUN", stage: "PUMP_ACTIVE", explorer: `https://solscan.io/token/${tokenAddress}` }, updated_at: updatedAt }) }),
+      supabaseRequest("/o8_token_targets?id=eq.o8", { method: "PATCH", body: JSON.stringify({ platform: "PUMP.FUN", symbol: "SWRM", token_address: tokenAddress, launch_tx_hash: launchTxHash || mint.firstObservedSignature, launch_block: mint.firstObservedSlot, total_supply: mint.supplyRaw, status: "PUMP_ACTIVE", metadata: { chain: "SOLANA", launchpad: "PUMP.FUN", mintProgram: mint.owner, decimals: mint.decimals, supplyRaw: mint.supplyRaw, verification, explorer: `https://solscan.io/token/${tokenAddress}` }, updated_at: updatedAt }) }),
+      supabaseRequest("/o8_system_bindings?id=eq.o8-token", { method: "PATCH", body: JSON.stringify({ status: "PUMP_ACTIVE", truth: "CONNECTED", details: { symbol: "SWRM", contractAddress: tokenAddress, launchpad: "PUMP.FUN", stage: "PUMP_ACTIVE", explorer: `https://solscan.io/token/${tokenAddress}` }, updated_at: updatedAt }) }),
       supabaseRequest("/o8_system_bindings?id=eq.pump-fun", { method: "PATCH", body: JSON.stringify({ status: "PUMP_UNVERIFIED", truth: "CONNECTED", details: { platform: "PUMP.FUN", targetMint: tokenAddress, verification }, updated_at: updatedAt }) }),
     ]);
     response.setHeader("Cache-Control", "no-store");

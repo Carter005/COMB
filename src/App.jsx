@@ -14,7 +14,7 @@ const realtimeClient = realtimeUrl && realtimeKey
 const initialArms = [
   { id: "01", name: "SCOUT", role: "new forager observer", mood: "focused", state: "STANDBY" },
   { id: "02", name: "NECTAR", role: "liquidity interpreter", mood: "restless", state: "STANDBY" },
-  { id: "03", name: "COMB", role: "contract structure analyst", mood: "guarded", state: "STANDBY" },
+  { id: "03", name: "CELL", role: "contract structure analyst", mood: "guarded", state: "STANDBY" },
   { id: "04", name: "SWARM", role: "participant observer", mood: "curious", state: "STANDBY" },
   { id: "05", name: "WING", role: "route interpreter", mood: "tracking", state: "STANDBY" },
   { id: "06", name: "STING", role: "anomaly hunter", mood: "suspicious", state: "STANDBY" },
@@ -28,7 +28,7 @@ const SYSTEM_EVENT_TYPES = new Set(["system_heartbeat", "memory_sync", "agent_re
 const CHAIN_EVENT_TYPES = new Set(["chain_block", "token_launched", "token_graduated"]);
 
 const LIFE_PHASES = [
-  { code: "00", name: "EMPTY HIVE", directive: "await a verified COMB target" },
+  { code: "00", name: "EMPTY HIVE", directive: "await a verified SWRM target" },
   { code: "01", name: "QUEEN EMERGED", directive: "verify origin and establish identity" },
   { code: "02", name: "FIRST FORAGE", directive: "bind eight scouts to one contract" },
   { code: "03", name: "SWARM FORMED", directive: "ingest verifiable chain evidence" },
@@ -41,7 +41,7 @@ const LIFE_PHASES = [
 const SCOUT_DOCTRINES = {
   SCOUT: ["I record the first trace. I do not infer intent.", "A first appearance does not establish a founder, a buyer, or a motive.", "A verified CA and its first target-scoped transfer or deployment record."],
   NECTAR: ["Flow is not conviction. Liquidity is not loyalty.", "A transfer count does not establish price direction, demand, or a reserve.", "A verified pool and target-scoped liquidity evidence over time."],
-  COMB: ["A hive is defined by its cells, not its noise.", "Network activity cannot describe a contract that has not been bound.", "A verified contract, bytecode, and privileged-call evidence."],
+  CELL: ["A hive is defined by its cells, not its noise.", "Network activity cannot describe a contract that has not been bound.", "A verified contract, bytecode, and privileged-call evidence."],
   SWARM: ["A crowd can form before a community does.", "Observed addresses are not a holder count or a social graph.", "Repeated target-scoped address interactions with retained evidence."],
   WING: ["Where value travels matters more than where it arrives.", "A route is not a buy, sell, migration, or economic intention by itself.", "A verified target and repeated route patterns across its own transfers."],
   STING: ["Every clean signal deserves an adversarial reading.", "Absence of evidence is not evidence of safety.", "A verified anomaly, privileged call, or abnormal target concentration."],
@@ -240,7 +240,7 @@ function feedRow(item) {
       : CHAIN_EVENT_TYPES.has(type)
         ? "CHAIN"
         : "RULE";
-  const scope = metadata.tokenAddress || metadata.coverage === "TARGET_SCOPED" ? "COMB TARGET" : "NETWORK";
+  const scope = metadata.tokenAddress || metadata.coverage === "TARGET_SCOPED" ? "SWRM TARGET" : "NETWORK";
   return {
     id: item.id,
     time: new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(new Date(item.created_at || item.at)),
@@ -338,7 +338,7 @@ function downloadMemoryCard(item) {
   context.strokeRect(54, 54, 1392, 792);
   context.fillStyle = "#e8e8e8";
   context.font = "600 30px Cascadia Mono, monospace";
-  context.fillText("COMB / HIVE MEMORY", 96, 120);
+  context.fillText("SWRM / HIVE MEMORY", 96, 120);
   context.font = "500 22px Cascadia Mono, monospace";
   context.fillText(`${item.layer} / ${item.source} / ${item.time}`, 96, 170);
   context.font = "600 46px Cascadia Mono, monospace";
@@ -353,7 +353,7 @@ function downloadMemoryCard(item) {
   context.font = "500 20px Cascadia Mono, monospace";
   context.fillText("EVIDENCE BEFORE ACTION / SOLANA MAINNET", 96, 786);
   const link = document.createElement("a");
-  link.download = `comb-memory-${String(item.id).replace(/[^a-z0-9-]/gi, "-")}.png`;
+  link.download = `swrm-memory-${String(item.id).replace(/[^a-z0-9-]/gi, "-")}.png`;
   link.href = canvas.toDataURL("image/png");
   link.click();
 }
@@ -477,7 +477,7 @@ function HivePulse() {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="hive-pulse" aria-label="Animated COMB honeycomb evidence display" />;
+  return <canvas ref={canvasRef} className="hive-pulse" aria-label="Animated SWRM honeycomb evidence display" />;
 }
 
 function App() {
@@ -701,7 +701,7 @@ function App() {
   const chainBlock = Number(chain.blockNumber ?? 0);
   const chainTransactions = Number(chain.transactionCount ?? 0);
   const chainExplorer = chain.explorer || "https://solscan.io";
-  const hiveEpochKey = "comb-hive-epoch";
+  const hiveEpochKey = "swrm-hive-epoch";
   if (token?.tokenAddress) {
     const verifiedLaunchAt = token.launchedAt ? new Date(token.launchedAt).toISOString() : null;
     const retainedEpoch = window.localStorage.getItem(hiveEpochKey);
@@ -713,7 +713,7 @@ function App() {
   const hiveEpoch = token?.tokenAddress ? window.localStorage.getItem(hiveEpochKey) : null;
   const hiveAgeSeconds = hiveEpoch ? Math.max(0, Math.round((now.getTime() - new Date(hiveEpoch).getTime()) / 1000)) : Number.NaN;
   const hiveAge = formatAge(hiveAgeSeconds);
-  const observationScope = token?.tokenAddress ? "COMB TARGET" : "NETWORK SAMPLE";
+  const observationScope = token?.tokenAddress ? "SWRM TARGET" : "NETWORK SAMPLE";
   const retainedRows = feed.filter((item) => item.layer === "CHAIN" || item.layer === "RULE").slice(0, 4);
   const lifecycleEvents = (remoteState?.lifecycleEvents || []).filter((item) => !token?.tokenAddress
     || item.targetAddress?.toLowerCase() === token.tokenAddress.toLowerCase());
@@ -754,7 +754,7 @@ function App() {
 
   useEffect(() => {
     if (!graduationEvent) return;
-    const dismissed = window.localStorage.getItem("comb-graduation-ceremony");
+    const dismissed = window.localStorage.getItem("swrm-graduation-ceremony");
     if (dismissed !== String(graduationEvent.id)) setShowCeremony(true);
   }, [graduationEvent?.id]);
 
@@ -814,7 +814,7 @@ function App() {
             <img src="/comb-logo.png" alt="" />
           </div>
           <div>
-            <h1>COMB PROTOCOL</h1>
+            <h1>SWRM PROTOCOL</h1>
             <p>every cell stores a memory // eight scouts read the swarm</p>
           </div>
         </div>
@@ -824,17 +824,17 @@ function App() {
           <Metric label="hive phase" value={`${lifePhase.code} / ${lifePhase.name}`} tone={lifePhase.name === "EMPTY HIVE" ? "warning" : "signal"} />
           <Metric label="scouts online" value={`${String(activeArms).padStart(2, "0")} / 08`} tone="signal" />
           {token?.tokenAddress ? (
-            <a className="ca-link bound" href={`${chainExplorer}/token/${token.tokenAddress}`} target="_blank" rel="noreferrer" title="Open verified COMB token mint">
-              <span>COMB CA</span><strong>{shortAddress(token.tokenAddress)}</strong>
+            <a className="ca-link bound" href={`${chainExplorer}/token/${token.tokenAddress}`} target="_blank" rel="noreferrer" title="Open verified SWRM token mint">
+              <span>SWRM CA</span><strong>{shortAddress(token.tokenAddress)}</strong>
             </a>
           ) : (
             <div className="ca-link terminal-readout" title="Readout only. A contract address appears after admin binding.">
-              <span>COMB CA</span><strong>UNBOUND</strong>
+              <span>SWRM CA</span><strong>UNBOUND</strong>
             </div>
           )}
           <Metric label="hive age" value={hiveAge} tone={token?.tokenAddress ? "signal" : "warning"} />
           {twitterUrl ? (
-            <a className="social-link" href={twitterUrl} target="_blank" rel="noreferrer" title="Open the COMB X profile">X / FOLLOW</a>
+            <a className="social-link" href={twitterUrl} target="_blank" rel="noreferrer" title="Open the SWRM X profile">X / FOLLOW</a>
           ) : (
             <div className="social-link terminal-readout" title="Readout only. The X profile has not been configured.">X / UNBOUND</div>
           )}
@@ -848,9 +848,9 @@ function App() {
       </div>
 
       <section className="specimen" aria-label="Live specimen">
-        <div className="specimen-label">COMB HIVE // PHASE {lifePhase.code} — {lifePhase.name}</div>
+        <div className="specimen-label">SWRM HIVE // PHASE {lifePhase.code} — {lifePhase.name}</div>
         <div className="specimen-visual" aria-label="Live honeycomb evidence display">
-          <div className="terminal-specimen" role="img" aria-label="COMB honeycomb rendered from terminal pixels">
+          <div className="terminal-specimen" role="img" aria-label="SWRM honeycomb rendered from terminal pixels">
             <div className="specimen-readout"><span>8 FREE SCOUTS</span><b>VISUAL / DECORATIVE</b><span>NO TARGET VECTOR</span></div>
             <HivePulse />
             <div className="arm-register" aria-hidden="true"><span>01</span><span>02</span><span>03</span><span>04</span><b>SCOUT REGISTER</b><span>05</span><span>06</span><span>07</span><span>08</span></div>
@@ -858,15 +858,15 @@ function App() {
         </div>
         <div className="specimen-meta">
           <span><Radio size={13} /> {lifePhase.directive}</span>
-          <div className="life-cycle" aria-label="COMB lifecycle">
+          <div className="life-cycle" aria-label="SWRM lifecycle">
             {LIFE_PHASES.map((phase) => <span key={phase.code} className={phase.code === lifePhase.code ? "active" : ""}>{phase.code} {phase.name}</span>)}
           </div>
         </div>
         <form className="ask-line" onSubmit={submitQuery}>
           <label htmlFor="ask">ASK&gt;</label>
-          <input id="ask" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ask COMB about retained evidence or scout state" />
+          <input id="ask" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ask SWRM about retained evidence or scout state" />
           <button type="button" onClick={() => setShowProposal(true)}>PROPOSE MEMORY</button>
-          <button type="submit" disabled={asking}>{asking ? "reading" : "ask COMB"}</button>
+          <button type="submit" disabled={asking}>{asking ? "reading" : "ask SWRM"}</button>
         </form>
         {reply && (
           <div className="conversation-overlay" role="status" aria-live="polite">
@@ -895,10 +895,10 @@ function App() {
           </div>
         )}
         {showCeremony && graduationEvent && (
-          <div className="conversation-overlay ceremony-overlay" role="dialog" aria-label="Verified COMB graduation ceremony">
+          <div className="conversation-overlay ceremony-overlay" role="dialog" aria-label="Verified SWRM graduation ceremony">
             <div className="conversation-header">
               <span>CHAIN-TRIGGERED CEREMONY / PHASE 05 / GRADUATED</span>
-              <button type="button" onClick={() => { setShowCeremony(false); window.localStorage.setItem("comb-graduation-ceremony", String(graduationEvent.id)); }} aria-label="Close graduation ceremony"><X size={14} /></button>
+              <button type="button" onClick={() => { setShowCeremony(false); window.localStorage.setItem("swrm-graduation-ceremony", String(graduationEvent.id)); }} aria-label="Close graduation ceremony"><X size={14} /></button>
             </div>
             <div className="ceremony-body">
               <span className="ceremony-sigil">08</span>
@@ -928,8 +928,8 @@ function App() {
             <div className="signal-header"><a className="signal-link" href={chainExplorer} target="_blank" rel="noreferrer">SOLANA / CONFIRMED RPC</a><span className={`truth-tag ${chainConnected ? "" : "warning"}`}>{chainConnected ? "CONNECTED" : chainStatus}</span></div>
             <p>{token?.tokenAddress
               ? <><b>{token.name || token.symbol}</b> has a confirmed SPL mint. CA <a className="signal-link" href={`${chainExplorer}/token/${token.tokenAddress}`} target="_blank" rel="noreferrer">{`${token.tokenAddress.slice(0, 8)}...${token.tokenAddress.slice(-6)}`}</a>. Pump origin is shown only when independently verified.</>
-              : chainConnected ? `SCOUT observed Solana slot ${chainBlock.toLocaleString()}. COMB is waiting for its Pump token mint.` : "No chain evidence is currently available. COMB will not generate hive observations until the RPC endpoint is verified."}</p>
-            {!token?.tokenAddress && <div className="genesis-checklist" aria-label="COMB genesis checklist"><span><b className={chainConnected ? "done" : "pending"}>{chainConnected ? "READY" : "WAIT"}</b> SOLANA IDENTITY</span><span><b className="pending">WAIT</b> PUMP MINT</span><span><b className="pending">WAIT</b> TARGET EVIDENCE</span></div>}
+              : chainConnected ? `SCOUT observed Solana slot ${chainBlock.toLocaleString()}. SWRM is waiting for its Pump token mint.` : "No chain evidence is currently available. SWRM will not generate hive observations until the RPC endpoint is verified."}</p>
+            {!token?.tokenAddress && <div className="genesis-checklist" aria-label="SWRM genesis checklist"><span><b className={chainConnected ? "done" : "pending"}>{chainConnected ? "READY" : "WAIT"}</b> SOLANA IDENTITY</span><span><b className="pending">WAIT</b> PUMP MINT</span><span><b className="pending">WAIT</b> TARGET EVIDENCE</span></div>}
             <div className="signal-scale">{token?.tokenAddress
               ? <><span>{token.symbol} / PUMP.FUN</span><b>{token.metadata?.verification === "SPL_MINT_CONFIRMED_PUMP_ORIGIN_UNVERIFIED" ? "MINT CONFIRMED" : "VERIFYING"}</b><span>{token.status}</span></>
               : <><span>CHAIN SOLANA</span><b>SLOT {chainConnected ? chainBlock.toLocaleString() : "--"}</b><span>PUMP MINT WAIT</span></>}</div>
@@ -998,7 +998,7 @@ function App() {
         <div className="cell-detail-backdrop" role="presentation" onClick={() => setSelectedScout(null)}>
           <section className="cell-detail scout-detail" role="dialog" aria-modal="true" aria-label={`${selectedScout.name} scout evidence`} onClick={(event) => event.stopPropagation()}>
             <header className="cell-detail-header"><span>SCOUT-{selectedScout.id} / {selectedScout.name}</span><button type="button" onClick={() => setSelectedScout(null)} aria-label="Close scout details" title="Close scout details"><X size={14} /></button></header>
-            <div className="cell-detail-title"><span className="truth-tag">{selectedScout.state} / {selectedScout.mood}</span><h2>{selectedScout.role}</h2><p>{selectedScout.domain || "This Scout is waiting for a verified COMB target."}</p></div>
+            <div className="cell-detail-title"><span className="truth-tag">{selectedScout.state} / {selectedScout.mood}</span><h2>{selectedScout.role}</h2><p>{selectedScout.domain || "This Scout is waiting for a verified SWRM target."}</p></div>
             <dl className="cell-detail-facts"><div><dt>NODE</dt><dd>{selectedScout.nodeName || "UNBOUND"}</dd></div><div><dt>RECORDS</dt><dd>{selectedScout.evidence.length}</dd></div><div><dt>CONFIDENCE</dt><dd>{Number(selectedScout.routeConfidence || 0).toFixed(2)}</dd></div><div><dt>AI</dt><dd>ON REQUEST</dd></div></dl>
             <div className="scout-doctrine">
               {[["WHAT I SEE", 0], ["WHAT I CANNOT CLAIM", 1], ["WHAT WOULD CHANGE MY VIEW", 2]].map(([label, index]) => <div key={label}><span>{label}</span><p>{(SCOUT_DOCTRINES[selectedScout.name] || SCOUT_DOCTRINES.SCOUT)[index]}</p></div>)}
@@ -1013,7 +1013,7 @@ function App() {
         <div className="cell-detail-backdrop" role="presentation" onClick={() => setSelectedEvent(null)}>
           <section className="cell-detail" role="dialog" aria-modal="true" aria-label={`Event ${selectedEvent.id}`} onClick={(event) => event.stopPropagation()}>
             <header className="cell-detail-header"><span>EVENT {String(selectedEvent.id).padStart(4, "0")} / {selectedEvent.layer}</span><div className="event-detail-actions"><button type="button" className="memory-download" onClick={() => downloadMemoryCard(selectedEvent)} title="Download memory card"><Download size={14} /></button><button type="button" onClick={() => setSelectedEvent(null)} aria-label="Close event details" title="Close event details"><X size={14} /></button></div></header>
-            <div className="cell-detail-title"><span className="truth-tag">{selectedEvent.source} / {selectedEvent.scope}</span><h2>{selectedEvent.text}</h2><p>Retained feed event from the COMB observation stream. Open the evidence fields below before assigning a narrative interpretation.</p></div>
+            <div className="cell-detail-title"><span className="truth-tag">{selectedEvent.source} / {selectedEvent.scope}</span><h2>{selectedEvent.text}</h2><p>Retained feed event from the SWRM observation stream. Open the evidence fields below before assigning a narrative interpretation.</p></div>
             <dl className="cell-detail-facts"><div><dt>TIME</dt><dd>{selectedEvent.time}</dd></div><div><dt>LAYER</dt><dd>{selectedEvent.layer}</dd></div><div><dt>SOURCE</dt><dd>{selectedEvent.source}</dd></div><div><dt>CELL</dt><dd>{selectedEvent.metadata?.cellKey || "UNASSIGNED"}</dd></div></dl>
             <div className="cell-detail-evidence"><span className="eyebrow">EVENT METADATA</span><pre>{JSON.stringify(selectedEvent.metadata || {}, null, 2)}</pre></div>
           </section>
@@ -1033,7 +1033,7 @@ function App() {
       )}
 
       <footer className="footer">
-        <span>protocol <b>COMB</b></span><span>phase <b>{lifePhase.code} / {lifePhase.name}</b></span><span>scouts <b>08</b></span><span>scope <b>{observationScope}</b></span><span>chain <b>{chainStatus}</b></span><span>token <b>{tokenStatus}</b></span><span>hive age <b>{hiveAge}</b></span><span>AI <b>ON REQUEST</b></span><span className="footer-hint">THE SWARM MOVES. COMB REMEMBERS.</span>
+        <span>protocol <b>SWRM</b></span><span>phase <b>{lifePhase.code} / {lifePhase.name}</b></span><span>scouts <b>08</b></span><span>scope <b>{observationScope}</b></span><span>chain <b>{chainStatus}</b></span><span>token <b>{tokenStatus}</b></span><span>hive age <b>{hiveAge}</b></span><span>AI <b>ON REQUEST</b></span><span className="footer-hint">THE SWARM MOVES. SWRM REMEMBERS.</span>
       </footer>
     </main>
   );
